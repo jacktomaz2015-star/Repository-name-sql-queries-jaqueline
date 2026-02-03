@@ -44,6 +44,7 @@ WHERE c.codatv1 IN (27,28)
   AND p.dtsaida >= DATE '2025-01-01'
   AND p.dtsaida <  DATE '2026-01-01'
   AND p.dtcancel IS NULL
+  AND p.codigofiscal not in (5949) 
 
 GROUP BY
     p.codcli,
@@ -55,7 +56,5 @@ GROUP BY
 ORDER BY
    SUM(p.vltotal) desc,
     p.cliente;
-    
-    
-    SELECT * FROM pcativi
+
 
