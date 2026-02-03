@@ -1,1 +1,61 @@
+-- =========================================
+-- ANALISE: Vendas clientes por ramo de atividade / lucro
+-- TIPO: Pivot mensal + margem
+-- BASE: pcnfsaid + pcclient
+-- AUTORA: Jaqueline Tomaz
+-- DATA: 2026-02-03
+-- =========================================
+
+SELECT
+    p.codcli,
+    p.cliente,
+    P.ufcodigo as UF,
+    r.ramo,
+    EXTRACT(YEAR FROM p.dtsaida) AS ano_ref,
+
+    SUM(p.vltotal) AS total_venda,
+    SUM(p.vlcustofin) AS CMV,
+
+    TRUNC(
+        (SUM(p.vltotal) - SUM(p.vlcustofin)) /
+        DECODE(SUM(p.vltotal),0,1,SUM(p.vltotal)) * 100
+    ,2) AS "MARGEM(%)",
+
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=1 THEN p.vltotal ELSE 0 END) AS jan,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=2 THEN p.vltotal ELSE 0 END) AS fev,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=3 THEN p.vltotal ELSE 0 END) AS mar,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=4 THEN p.vltotal ELSE 0 END) AS abr,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=5 THEN p.vltotal ELSE 0 END) AS mai,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=6 THEN p.vltotal ELSE 0 END) AS jun,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=7 THEN p.vltotal ELSE 0 END) AS jul,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=8 THEN p.vltotal ELSE 0 END) AS ago,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=9 THEN p.vltotal ELSE 0 END) AS set_,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=10 THEN p.vltotal ELSE 0 END) AS out_,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=11 THEN p.vltotal ELSE 0 END) AS nov_,
+    SUM(CASE WHEN EXTRACT(MONTH FROM p.dtsaida)=12 THEN p.vltotal ELSE 0 END) AS dez_
+
+FROM pcnfsaid p
+JOIN pcclient c 
+    ON p.codcli = c.codcli
+JOIN pcativi r 
+    ON r.codativ = c.codatv1
+
+WHERE c.codatv1 IN (27,28)
+  AND p.dtsaida >= DATE '2025-01-01'
+  AND p.dtsaida <  DATE '2026-01-01'
+  AND p.dtcancel IS NULL
+
+GROUP BY
+    p.codcli,
+    p.cliente,
+    P.ufcodigo,
+    r.ramo,
+    EXTRACT(YEAR FROM p.dtsaida)
+
+ORDER BY
+   SUM(p.vltotal) desc,
+    p.cliente;
+    
+    
+    SELECT * FROM pcativi
 
